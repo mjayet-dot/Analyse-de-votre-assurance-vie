@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floriane 2 — Analyse</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --p1: #0d4a3a;
+    --p2: #0f6b52;
+    --p3: #1a9070;
+    --teal: #12b886;
+    --teal-light: rgba(18,184,134,0.12);
+    --teal-border: rgba(18,184,134,0.25);
+    --bg: #f4f6f5;
+    --surface: #ffffff;
+    --surface2: #f8faf9;
+    --border: #e4ebe8;
+    --text: #0d2b22;
+    --muted: #6b8278;
+    --red: #d94f3a;
+    --red-light: rgba(217,79,58,0.08);
+    --red-border: rgba(217,79,58,0.2);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Sora',sans-serif; font-weight:300; font-size:13px; line-height:1.6; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--p1) 0%, var(--p2) 50%, var(--p3) 100%);
+    padding: 40px 48px 36px;
+    color: white;
+  }
+  .header-top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-icon {
+    width:36px; height:36px; border-radius:10px;
+    background: linear-gradient(135deg, var(--p3), var(--teal));
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:700; color:white;
+  }
+  .brand-name { font-size:15px; font-weight:600; letter-spacing:0.05em; color:rgba(255,255,255,0.9); }
+  .badge { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:20px; padding:4px 12px; font-size:11px; color:rgba(255,255,255,0.7); }
+
+  h1 { font-size:28px; font-weight:700; color:white; line-height:1.2; margin-bottom:6px; }
+  .header-meta { font-size:12px; color:rgba(255,255,255,0.6); }
+
+  /* MAIN */
+  main { padding: 36px 48px; max-width:1000px; }
+
+  /* SECTION */
+  section { margin-bottom:36px; }
+  .section-title {
+    font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--p2); margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* GRID KPI */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media(max-width:700px){ .kpi-grid{ grid-template-columns:1fr 1fr; } }
+  .kpi {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:20px;
+  }
+  .kpi-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .kpi-val { font-size:26px; font-weight:700; color:var(--text); line-height:1; }
+  .kpi-val.teal { color:var(--p2); }
+  .kpi-val.red { color:var(--red); }
+  .kpi-sub { font-size:11px; color:var(--muted); margin-top:5px; }
+
+  /* SUPPORTS */
+  .support-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .support-row {
+    display:flex; align-items:center; gap:16px;
+    padding:14px 20px; border-bottom:1px solid var(--border);
+  }
+  .support-row:last-child { border-bottom:none; }
+  .support-row.danger { background:var(--red-light); }
+  .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .support-name { flex:1; font-size:13px; font-weight:400; color:var(--text); }
+  .support-pct { font-size:12px; color:var(--muted); min-width:36px; text-align:right; }
+  .bar-track { width:80px; height:5px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:99px; }
+  .support-amount { font-size:13px; font-weight:600; color:var(--text); min-width:80px; text-align:right; }
+  .support-gain { font-size:11px; font-weight:500; min-width:70px; text-align:right; }
+
+  /* TWO COL */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:650px){ .two-col{ grid-template-columns:1fr; } }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; }
+  .panel h3 { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px; }
+
+  /* FRAIS TABLE */
+  .frais-table { width:100%; border-collapse:collapse; }
+  .frais-table td { padding:10px 0; border-bottom:1px solid var(--border); font-size:12px; }
+  .frais-table td:last-child { text-align:right; font-weight:600; color:var(--p2); border-bottom:1px solid var(--border); }
+  .frais-table tr:last-child td { border-bottom:none; }
+  .frais-total-row { display:flex; justify-content:space-between; align-items:center; background:var(--red-light); border:1px solid var(--red-border); border-radius:10px; padding:14px 16px; margin-top:14px; }
+  .frais-total-label { font-size:12px; color:var(--muted); }
+  .frais-total-val { font-size:20px; font-weight:700; color:var(--red); }
+
+  /* OPCIMMO */
+  .opcimmo-box {
+    background:var(--surface);
+    border:1px solid var(--red-border);
+    border-top: 3px solid var(--red);
+    border-radius:12px; padding:24px;
+  }
+  .opcimmo-title { font-size:15px; font-weight:700; color:var(--red); margin-bottom:6px; }
+  .opcimmo-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+  .reasons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media(max-width:600px){ .reasons{ grid-template-columns:1fr; } }
+  .reason { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; }
+  .reason strong { display:block; font-size:12px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .reason span { font-size:11px; color:var(--muted); line-height:1.6; }
+  .reco-box { background:var(--red-light); border:1px solid var(--red-border); border-radius:8px; padding:14px 16px; margin-top:14px; font-size:12px; color:var(--text); line-height:1.7; }
+  .reco-box strong { color:var(--red); }
+
+  /* FOOTER */
+  footer { border-top:1px solid var(--border); padding:20px 48px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  .f-brand { font-size:13px; font-weight:700; color:var(--p2); }
+  .f-note { font-size:10px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div class="brand-name">PATRIMY</div>
+    </div>
+    <div class="badge">Analyse confidentielle · Avril 2025</div>
+  </div>
+  <h1>Floriane 2 — M. Blaise Boutolleau</h1>
+  <div class="header-meta">Contrat n° 73935061110 · Predica / Crédit Agricole Assurances · Ouverture ~2014</div>
+</header>
+
+<main>
+
+  <!-- 01 SITUATION -->
+  <section>
+    <div class="section-title">01 · Situation du contrat</div>
+    <div class="kpi-grid" style="margin-bottom:16px;">
+      <div class="kpi">
+        <div class="kpi-label">Encours total</div>
+        <div class="kpi-val">269 929 €</div>
+        <div class="kpi-sub">Valorisation actuelle</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Plus-value brute</div>
+        <div class="kpi-val teal">+34 851 €</div>
+        <div class="kpi-sub">Depuis l'ouverture</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Perf. totale brute</div>
+        <div class="kpi-val teal">+14,8%</div>
+        <div class="kpi-sub">Sur ~10 ans</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Répartition</div>
+        <div class="kpi-val" style="font-size:18px; line-height:1.4;">56% €uro<br><span style="color:var(--muted);font-size:16px;">44% UC</span></div>
+        <div class="kpi-sub">Fonds euro dominant</div>
+      </div>
+    </div>
+
+    <div class="support-card">
+      <div class="support-row">
+        <div class="dot" style="background:#1a9070"></div>
+        <div class="support-name">Actif Euro</div>
+        <div class="bar-track"><div class="bar-fill" style="width:56%;background:#1a9070"></div></div>
+        <div class="support-pct">56,4%</div>
+        <div class="support-amount">152 198 €</div>
+        <div class="support-gain" style="color:#1a9070">+33 997 €</div>
+      </div>
+      <div class="support-row">
+        <div class="dot" style="background:#12b886"></div>
+        <div class="support-name">Amundi Équilibre Climat</div>
+        <div class="bar-track"><div class="bar-fill" style="width:21%;background:#12b886"></div></div>
+        <div class="support-pct">20,8%</div>
+        <div class="support-amount">56 129 €</div>
+        <div class="support-gain" style="color:#1a9070">+6 289 €</div>
+      </div>
+      <div class="support-row">
+        <div class="dot" style="background:#7ec8b0"></div>
+        <div class="support-name">CPR Silver Age-P</div>
+        <div class="bar-track"><div class="bar-fill" style="width:10%;background:#7ec8b0"></div></div>
+        <div class="support-pct">9,8%</div>
+        <div class="support-amount">26 548 €</div>
+        <div class="support-gain" style="color:#1a9070">+6 612 €</div>
+      </div>
+      <div class="support-row danger">
+        <div class="dot" style="background:var(--red)"></div>
+        <div class="support-name">⚠ Prem Opcimmo</div>
+        <div class="bar-track"><div class="bar-fill" style="width:13%;background:var(--red)"></div></div>
+        <div class="support-pct">13,0%</div>
+        <div class="support-amount">35 054 €</div>
+        <div class="support-gain" style="color:var(--red)">−14 785 €</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 PERF -->
+  <section>
+    <div class="section-title">02 · Performance annualisée vs inflation</div>
+    <div class="two-col">
+      <div class="panel">
+        <h3>Rendement annualisé comparé</h3>
+        <canvas id="compareChart" style="max-height:200px;"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Simulation 100 000 € sur 10 ans</h3>
+        <canvas id="growthChart" style="max-height:200px;"></canvas>
+      </div>
+    </div>
+    <div style="background:var(--red-light);border:1px solid var(--red-border);border-radius:10px;padding:16px 20px;margin-top:14px;display:flex;gap:12px;align-items:flex-start;">
+      <div style="font-size:20px;flex-shrink:0;">📉</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.8;">
+        Avec <strong>~0,1%/an net de frais</strong>, le contrat est très loin de l'inflation (<strong>2,7%/an</strong>).
+        Pour maintenir votre pouvoir d'achat sur 10 ans, l'encours aurait dû atteindre <strong>~314 000 €</strong>.
+        Il affiche <strong>269 929 €</strong> → <strong style="color:var(--red);">perte réelle de ~44 000 € de pouvoir d'achat.</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 FRAIS -->
+  <section>
+    <div class="section-title">03 · Structure de frais</div>
+    <div class="two-col">
+      <div class="panel">
+        <h3>Frais annuels du contrat (Predica)</h3>
+        <table class="frais-table">
+          <tbody>
+            <tr><td>Gestion fonds euro</td><td>0,80 %</td></tr>
+            <tr><td>Gestion unités de compte</td><td>0,96 %</td></tr>
+            <tr><td>Fonds internes (actions, moy.)</td><td>1,69 %</td></tr>
+            <tr><td>Fonds internes (diversifiés, moy.)</td><td>1,52 %</td></tr>
+            <tr><td>Fonds internes (immobilier, moy.)</td><td>1,38 %</td></tr>
+            <tr><td>Frais sur versements</td><td>2,50 % max</td></tr>
+          </tbody>
+        </table>
+        <div class="frais-total-row">
+          <div>
+            <div class="frais-total-label">Coût annuel estimé sur votre encours</div>
+            <div style="font-size:11px;color:var(--muted);">~2,1%/an · chaque année, quelle que soit la perf</div>
+          </div>
+          <div class="frais-total-val">~5 500 €/an</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Érosion des frais sur 10 ans (100 000 €)</h3>
+        <canvas id="fraisChart" style="max-height:200px;"></canvas>
+        <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.7;">
+          Pour être rentable en termes réels, les supports doivent générer au minimum <strong style="color:var(--text);">4,8 %/an brut</strong> (2,7% inflation + 2,1% frais). Aujourd'hui : loin du compte.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 OPCIMMO -->
+  <section>
+    <div class="section-title">04 · Prem Opcimmo — Le problème</div>
+    <div class="opcimmo-box">
+      <div class="opcimmo-title">−14 785 € · −29,7% depuis l'ouverture</div>
+      <div class="opcimmo-sub">Ce support immobilier plombe l'ensemble du contrat. Voici pourquoi c'est structurel.</div>
+      <div class="reasons">
+        <div class="reason">
+          <strong>Double friction de frais</strong>
+          <span>Frais UC (0,96%) + frais internes OPCI (1,38%) = <b>2,34%/an minimum</b>, avant tout rendement.</span>
+        </div>
+        <div class="reason">
+          <strong>Illiquidité en cas de stress</strong>
+          <span>Les OPCI en AV peuvent geler les rachats lors de tensions. Impossible de sortir quand on veut.</span>
+        </div>
+        <div class="reason">
+          <strong>Chute structurelle depuis 2022</strong>
+          <span>La hausse des taux a écrasé les valeurs d'actifs et provoqué des décollectes massives sur l'Opcimmo.</span>
+        </div>
+        <div class="reason">
+          <strong>Mauvais véhicule pour l'immobilier</strong>
+          <span>En SCPI en direct avec levier crédit : meilleure liquidité, pas de double couche de frais.</span>
+        </div>
+      </div>
+      <div class="reco-box">
+        ⚡ <strong>Recommandation :</strong> Arbitrer ce support dès que possible. Payer <strong>~2,3%/an de frais</strong> sur un actif en −30% est contre-productif. Acter la perte aujourd'hui est préférable à continuer de la laisser filer.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="f-brand">PATRIMY</div>
+  <div class="f-note">Document confidentiel · Relevé de situation + fiche frais Floriane 2 (mars 2024)</div>
+</footer>
+
+<script>
+Chart.defaults.color = '#6b8278';
+Chart.defaults.borderColor = '#e4ebe8';
+Chart.defaults.font.family = 'Sora';
+Chart.defaults.font.size = 11;
+
+// Compare bars
+new Chart(document.getElementById('compareChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Floriane 2\n(net frais)', 'Inflation\nINSEE', 'Livret A\n(moy.)', 'Fonds euro\nmarché'],
+    datasets: [{
+      data: [0.1, 2.7, 1.5, 1.8],
+      backgroundColor: ['#d94f3a', 'rgba(217,79,58,0.35)', 'rgba(26,144,112,0.35)', 'rgba(26,144,112,0.35)'],
+      borderRadius: 6, borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { ticks: { callback: v => v + '%' }, grid: { color: '#e4ebe8' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Growth line
+const yrs = ['An 0','2','4','6','8','10'];
+new Chart(document.getElementById('growthChart'), {
+  type: 'line',
+  data: {
+    labels: yrs,
+    datasets: [
+      {
+        label: 'Inflation',
+        data: [100000, 105471, 111251, 117386, 123919, 130900],
+        borderColor: '#d94f3a', borderWidth: 2, borderDash: [5,4],
+        pointRadius: 0, tension: 0.4, fill: false
+      },
+      {
+        label: 'Floriane 2',
+        data: [100000, 102010, 104060, 107203, 109358, 114800],
+        borderColor: '#1a9070', borderWidth: 2,
+        backgroundColor: 'rgba(26,144,112,0.06)',
+        pointRadius: 0, tension: 0.4, fill: true
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } },
+    scales: {
+      y: { ticks: { callback: v => (v/1000).toFixed(0) + 'k€' }, grid: { color: '#e4ebe8' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Frais erosion
+new Chart(document.getElementById('fraisChart'), {
+  type: 'line',
+  data: {
+    labels: yrs,
+    datasets: [
+      {
+        label: 'Frais réduits (0,5%)',
+        data: [100000, 105471, 111016, 116800, 122800, 129500],
+        borderColor: '#1a9070', borderWidth: 2,
+        pointRadius: 0, tension: 0.4, fill: false
+      },
+      {
+        label: 'Frais Floriane 2 (2,1%)',
+        data: [100000, 101400, 102800, 104200, 105650, 107100],
+        borderColor: '#d94f3a', borderWidth: 2,
+        backgroundColor: 'rgba(217,79,58,0.07)',
+        pointRadius: 0, tension: 0.4, fill: true
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } },
+    scales: {
+      y: { ticks: { callback: v => (v/1000).toFixed(0) + 'k€' }, grid: { color: '#e4ebe8' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
